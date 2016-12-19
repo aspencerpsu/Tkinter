@@ -1,22 +1,32 @@
 from Tkinter import *
 import threading, sys
 
+win = Tk()
+openboxes = {"on": []}
 
 def document():
+	global openboxes, win
+	if openboxes["on"] != []:
+		dialog = openboxes["on"][0] 
+		dialog.destroy()
+		openboxes["on"].pop() #remove the widget window
+		del dialog
+	else:
+		pass #continue
 	""" Define the function's purpose """
 	cursor = listbox.curselection()
 	item = listbox.get(cursor[0])
 	root = Tk()
+	openboxes["on"].append(root)
 	access = getattr(root, str(item))
 	print "\n\n####\n\t %s \n\n####\n\t"%(access.__doc__)
-	root.destroy() #destroy the propagated window
+	label = Label(root, text=access.__doc__.upper(), fg="#738A05", padx=30, pady=30).pack(side="top", expand="yes", fill="both")
 	return
-
-win = Tk()
 
 Label(win, text="A list of the following packages from Tkinter:\n").pack(side="top")
 
 scrollbar = Scrollbar(win)
+scrollbar.pack(side="right", fill="y")
 types = len(dir(win)) #list of the different widgets accessible with Tkinter
 
 button = Button(win, text="quit?", command=win.quit)
@@ -39,10 +49,8 @@ for wid in range(0, types-1):
 listbox.pack(side='top', fill="y")
 
 trigger = Button(win, text="info", command=lambda listbox=listbox: listbox.document()) 
-
-trigger.place(x=20, y=30, width=30, height=15)
 scrollbar.config(command=listbox.yview)
-scrollbar.pack(side="right", fill="y")
+trigger.place(x=20, y=30, width=30, height=15)
 
 while True:
 	win.mainloop()	
