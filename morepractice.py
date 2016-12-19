@@ -52,5 +52,4 @@ trigger = Button(win, text="info", command=lambda listbox=listbox: listbox.docum
 scrollbar.config(command=listbox.yview)
 trigger.place(x=20, y=30, width=30, height=15)
 
-while True:
-	win.mainloop()	
+win.mainloop()	
