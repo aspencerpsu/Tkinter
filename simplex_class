@@ -1,0 +1,15 @@
+#! /usr/bin/python2.7
+
+from ortools.linear_solver import linear_solver_pb2
+from ortools.linear_solver import pywraplp
+
+class ProblemStatement(object):
+	
+	def optimization_problem(optimization_problem_type, variables, constraints, price):
+		solver = pywraplp.Solver("optimization_problem", optimization_problem_type)
+		infinity = solver.infinity()
+		vars = {}
+		cons = constraints.split(",")
+		cons = [pointer.split(":")[1] for pointer in cons]
+		for num in variables:
+			vars["%s"%(num)] = [solver.NumVar(0.0, infinity, "%s"%(num))]
