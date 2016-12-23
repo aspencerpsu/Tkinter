@@ -39,9 +39,18 @@ def additionalVarCap(**kwargs):
 		print root.grid_slaves()
 
 def additionalDecisionVar(**kwargs):
+
 	global guiapp, root
 	guiapp.decisionvars(kwargs['newrow'])
 	guiapp.infVarDir[kwargs['id']]['buttonadd'].grid_remove()
+	guiapp.infVarDir[kwargs['id']]['labeladd'].grid_remove()
+	guiapp.infVarDir[kwargs['id']]['buttonno'].grid_remove()
+
+def nodecisionvars(**kwargs):
+	global guiapp, root
+	guiapp.constraintbatch(kwargs['row'] +1, "init")
+	guiapp.infVarDir[kwargs['id']]['buttonadd'].grid_remove()
+	guiapp.infVarDir[kwargs['id']]['buttonno'].grid_remove()
 	guiapp.infVarDir[kwargs['id']]['labeladd'].grid_remove()
 
 class GUIAPPLICATION(Frame):
@@ -54,9 +63,7 @@ class GUIAPPLICATION(Frame):
 		self.problemLabel()	
 		self.infVarDir = {'decisionvars':3} #house the decisions
 		self.decisionvars()
-		self.constraintloop = {} #add all the constraint objects so if one decision var is addded, loop and configure the row and push +1
-		#self.constraintbatch(self.infVarDir['decisionvars'], "init")
-		
+		self.constraintloop = {} #add all the constraint objects so if one decision var is addded, loop and configure the row and push +1	
 	
 	def createLabel(self, label):
 		Label(self.master, text=label, width=int(.50*self.master.winfo_width()), height=int(.50*self.master.winfo_height())).grid(row=1, column=1, sticky=E)
@@ -86,7 +93,12 @@ class GUIAPPLICATION(Frame):
 		self.infVarDir[id(self.checkbox)]['label'].grid(row=row, column=3)
 		self.infVarDir[id(self.checkbox)]['entry'].grid(row=row, column=4)
 		self.infVarDir[id(self.checkbox)]['self'].config(variable= self.infVarDir[id(self.checkbox)]['var'], command=(lambda instance=id(self.checkbox), state=self.infVarDir[id(self.checkbox)]['var']: additionalVarCap(instance=instance, state=state) ) )
+
+
 		self.infVarDir['decisionvars'] += 2 #remember the row for variables of user additions for later use...
+
+
+
 		self.labeladd = Label(self.master, text="Add More Decisions?")		
 		self.infVarDir[id(self.checkbox)]['labeladd'] = self.labeladd
 		self.infVarDir[id(self.checkbox)]['labeladd'].grid(row=row+1, padx=15, column=0, ipadx=5)
@@ -94,16 +106,20 @@ class GUIAPPLICATION(Frame):
 		self.button = Button(self.master, text="Yes", bg="#738A05", fg="#ffffff", relief="raised", command=(lambda newrow=self.infVarDir['decisionvars'], id=id(self.checkbox): additionalDecisionVar(newrow=newrow, id=id)))
 		self.infVarDir[id(self.checkbox)]['buttonadd'] = self.button
 		self.infVarDir[id(self.checkbox)]['buttonadd'].grid(row=row+1, column=1, sticky=N+S+E+W, pady=25)
+		self.buttonno = Button(self.master, text="No", bg="#D11C24", fg="#ffffff", relief="raised", command=(lambda row=self.infVarDir['decisionvars']+1, id=id(self.checkbox): nodecisionvars(row=row, id=id)))
+		self.infVarDir[id(self.checkbox)]['buttonno'] = self.buttonno
+		self.infVarDir[id(self.checkbox)]['buttonno'].grid(row=row+1, column=2, sticky=N+S+E+W, pady=25)
 
 	def constraintbatch(self,row, constraint=None):
 		# REMEMBER WIDGETS THAT ARE OF AN ENTRY ARE CONTAINED IN THE FIRST INDEX OF THE LIST
 		# WITHIN THE SLAVE MAPS FOR INSTANCE
+
 		if not self.constraintloop.has_key('title'):
 			self.constrainttitle = Label(self.master, text="Constraints", font=('Arial', 24, 'underline'))
 			self.constraintloop["title"] = self.constrainttitle
 			self.constrainttitle.grid(row=self.infVarDir['decisionvars']+1, column=0, columnspan=5, sticky=N+E+W+S)
 
-		#Constraint label
+		#constraint label
 		self.constraintlabel = Label(self.master, text="%s:"%(constraint))
 		self.constraintloop[id(self.constraintlabel)] = self.constraintlabel
 		self.constraintlabel.grid(row=row+2, column=0, pady=29, sticky=E)
