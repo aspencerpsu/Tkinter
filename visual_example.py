@@ -20,7 +20,7 @@ def additionalVarCap(**kwargs):
 			guiapp.infVarDir[kwargs['instance']]['label'].destroy()
 			guiapp.infVarDir[kwargs['instance']]['entry'].destroy()
 			del guiapp.infVarDir[kwargs['instance']]['label']
-			del guiapp.infVarDir[kwargs['instance']]['entry']
+			del guiapp.infVarDir[kwargs['instance']]['entry'][0]
 		except KeyError:
 			print guiapp.infCheckbuttonDir
 			print root.grid_slaves()
@@ -28,12 +28,12 @@ def additionalVarCap(**kwargs):
 	else:
 		instancerow = int(guiapp.infVarDir[kwargs['instance']]['self'].grid_info()['row'])
 		guiapp.infVarDir[kwargs['instance']]['label'] = Label(root, text="cap?")
-		guiapp.infVarDir[kwargs['instance']]['entry'] = Entry(root, textvariable=IntVar())
+		guiapp.infVarDir[kwargs['instance']]['entry'][0] = Entry(root, textvariable=IntVar())
 
 		#bind them A.K.A. hand the daughter's off to the groom for marriage
 
 		guiapp.infVarDir[kwargs['instance']]['label'].grid(row=instancerow, column=3)
-		guiapp.infVarDir[kwargs['instance']]['entry'].grid(row=instancerow, column=4)
+		guiapp.infVarDir[kwargs['instance']]['entry'][0].grid(row=instancerow, column=4)
 
 		print guiapp.infVarDir
 		print root.grid_slaves()
@@ -57,13 +57,15 @@ class GUIAPPLICATION(Frame):
 
 	def __init__(self, master):
 		self.master = master # Master Widget
-		self.label = Label(master, width=int(.50*master.winfo_width()), height=int(.50*master.winfo_height()),text="Simplex Linear Solving Entry").grid(row=0,sticky=N+S+E+W,columnspan=3,padx=30)
+		self.label = Label(master, width=int(.50*master.winfo_width()), height=int(.50*master.winfo_height()),text="Simplex Linear Solving Entry").grid(row=0,sticky=N+S+E+W,columnspan=5,padx=30)
 		self.createLabel("delete all variables?")
 		self.createReset()
+		self.problemdescription = {'label': ''}
 		self.problemLabel()	
 		self.infVarDir = {'decisionvars':3} #house the decisions
 		self.decisionvars()
-		self.constraintloop = {} #add all the constraint objects so if one decision var is addded, loop and configure the row and push +1	
+		self.constraintloop = {} #add all the constraint objects so if one decision var is addded, loop and configure the row and push +1
+		self.objectiveblock = {} #add the objective expression with labels
 	
 	def createLabel(self, label):
 		Label(self.master, text=label, width=int(.50*self.master.winfo_width()), height=int(.50*self.master.winfo_height())).grid(row=1, column=1, sticky=E)
@@ -72,9 +74,10 @@ class GUIAPPLICATION(Frame):
 		Button(self.master, text='Reset?', command=resetfunction(), bg="#D11C24", padx=10, pady=10).grid(row=1, column=2, sticky=E)
 	
 	def problemLabel(self):
-		ment = StringVar
 		Label(self.master, text="Report Problem Statement", pady=20).grid(row=2, column=0)
-		Entry(self.master, textvariable=ment).grid(row=2, column=1)
+		getentry = StringVar()
+		Entry(self.master, textvariable=getentry).grid(row=2, column=1)
+		self.problemdescription['label'] = getentry.get()
 	
 	def decisionvars(self,row=3):
 
@@ -87,11 +90,12 @@ class GUIAPPLICATION(Frame):
 		self.checkbox.grid(row=row, column=2)
 		
 		self.infVarDir[id(self.checkbox)]['label'] = Label(self.master, text="cap?")
-
-		self.infVarDir[id(self.checkbox)]['entry'] = Entry(self.master, textvariable=IntVar())
+		
+		getentry = StringVar()
+		self.infVarDir[id(self.checkbox)]['entry'] = [Entry(self.master, textvariable=getentry), getentry]
 
 		self.infVarDir[id(self.checkbox)]['label'].grid(row=row, column=3)
-		self.infVarDir[id(self.checkbox)]['entry'].grid(row=row, column=4)
+		self.infVarDir[id(self.checkbox)]['entry'][0].grid(row=row, column=4)
 		self.infVarDir[id(self.checkbox)]['self'].config(variable= self.infVarDir[id(self.checkbox)]['var'], command=(lambda instance=id(self.checkbox), state=self.infVarDir[id(self.checkbox)]['var']: additionalVarCap(instance=instance, state=state) ) )
 
 
@@ -160,9 +164,21 @@ class GUIAPPLICATION(Frame):
 		self.constraintloop[id(self.constraintaddentry)] = [self.constraintaddentry, getconstraint]
 		self.constraintaddentry.grid(row=row+3, column=2, ipady=2, sticky=E)
 
-		self.button = Button(self.master, text="yes", command=(lambda row=row+3, constraint=getconstraint.get(): self.constraintbatch(row, constraint)))
+		self.button = Button(self.master, bg="#738A05", fg="#ffffff", text="yes", command=(lambda row=row+3, constraint=getconstraint.get(): self.constraintbatch(row, constraint)))
 		self.constraintloop[id(self.button)] = self.button
 		self.button.grid(row=row+3, column=3)
+
+		self.buttonno = Button(self.master, bg="#D11C24", fg="#ffffff", text="no", command=(lambda row=row+3: self.objectivefunction(int(row+1))))
+		self.constraintloop[id(self.buttonno)] = self.buttonno
+		self.buttonno.grid(row=row+3, column=4)
+
+	def objectivefunction(self, row):
+		if not self.objectiveblock.has_key('title'):
+			self.objectivetitle = Label(self.master, text="Objective Statement", font=('Arial', 24, 'underline'))
+			self.objectiveblock['title'] = self.objectivetitle
+			self.objectivetitle.grid(row=row, fg="#ffffff", bg='#0A2933', columnspan=5, column=0, sticky=N+W+S+E)
+
+
 
 
 		
