@@ -6,9 +6,15 @@ from Tkinter import *
 root = Tk()
 
 def resetfunction():
+	global guiapp, root
 	"""The resetfunction deletes all the String, Int, and Boolean Vars for 
 	    linear package"""
 	print "Working..."
+	root.destroy()
+	del guiapp
+	root = Tk()
+	guiapp = GUIAPPLICATION(root)
+	guiapp.mainloop()
 
 
 def additionalVarCap(**kwargs):
@@ -102,7 +108,8 @@ class GUIAPPLICATION(Frame):
 		Label(self.master, text=label, width=int(.50*self.master.winfo_width()), height=int(.50*self.master.winfo_height())).grid(row=1, column=1, sticky=E)
 
 	def createReset(self):
-		Button(self.master, text='Reset?', command=resetfunction(), bg="#D11C24", fg="#ffffff", padx=10, pady=10).grid(row=1, column=2, sticky=E)
+		Button(self.master, text='Reset?', command=(lambda x=None: resetfunction()), bg="#D11C24", fg="#ffffff", padx=10, pady=10).grid(row=1, column=2, sticky=E)
+
 	
 	def problemLabel(self):
 		Label(self.master, text="Report Problem Statement", pady=20).grid(row=2, column=0)
@@ -204,7 +211,7 @@ class GUIAPPLICATION(Frame):
 		self.constraintloop[id(self.constraintlabel)]['buttonadd'] = self.button
 		self.button.grid(row=row+3, column=3)
 
-		self.buttonno = Button(self.master, bg="#D11C24", fg="#ffffff", text="no", command=(lambda row=row+3, id=id(self.constraintlabel): constraintend(int(row+1),id)))
+		self.buttonno = Button(self.master, bg="#D11C24", fg="#ffffff", text="no", command=(lambda row=row+3, id=id(self.constraintlabel): constraintend(row=row,id=id)))
 		self.constraintloop[id(self.constraintlabel)]['buttonno'] = self.buttonno
 		self.buttonno.grid(row=row+3, column=4)
 
