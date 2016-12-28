@@ -256,13 +256,6 @@ class GUIAPPLICATION(Frame):
 		self.button.grid(row=row+1, column=2, sticky=N+W+E+S)
 
 
-
-
-		
-
-
-
-	
 #root.geometry("450x600+20+10")
 
 guiapp = GUIAPPLICATION(root)
