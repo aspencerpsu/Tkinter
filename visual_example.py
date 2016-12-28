@@ -2,10 +2,12 @@ from ortools.linear_solver import linear_solver_pb2 #linear problem solving tool
 from ortools.linear_solver import pywraplp #problems to solve using pywrap advantage tools
 import sys, Tkinter
 from Tkinter import *
+import simplex_class
 
 root = Tk()
 
 def resetfunction():
+
 	global guiapp, root
 	"""The resetfunction deletes all the String, Int, and Boolean Vars for 
 	    linear package"""
@@ -18,28 +20,31 @@ def resetfunction():
 
 
 def additionalVarCap(**kwargs):
+
 	global guiapp, root
 	if kwargs['state'].get(): #if the user wants an infinite guess
 		try:
 			guiapp.infVarDir[kwargs['instance']]['label'].grid_forget()
-			guiapp.infVarDir[kwargs['instance']]['entry'][0].grid_forget()
+			guiapp.infVarDir[kwargs['instance']]['cap'][0].grid_forget()
 			guiapp.infVarDir[kwargs['instance']]['label'].destroy()
-			guiapp.infVarDir[kwargs['instance']]['entry'][0].destroy()
+			guiapp.infVarDir[kwargs['instance']]['cap'][0].destroy()
 			del guiapp.infVarDir[kwargs['instance']]['label']
-			del guiapp.infVarDir[kwargs['instance']]['entry'][0]
+			#novar = IntVar()
+			#novar.set(0)
+			#guiapp.infVarDir[kwargs['instance']]['cap'][1] = novar
 		except KeyError:
 			"Nothing to do"
 			#print guiapp.infCheckbuttonDir
-			#print root.grid_slaves()	
+			#print root.grid_slaves()
 	else:
 		instancerow = int(guiapp.infVarDir[kwargs['instance']]['self'].grid_info()['row'])
 		guiapp.infVarDir[kwargs['instance']]['label'] = Label(root, text="cap?")
-		guiapp.infVarDir[kwargs['instance']]['entry'][0] = Entry(root, textvariable=IntVar())
+		guiapp.infVarDir[kwargs['instance']]['cap'][0] = Entry(root, textvariable=kwargs['capvar'])
 
 		#bind them A.K.A. hand the daughter's off to the groom for marriage
 
 		guiapp.infVarDir[kwargs['instance']]['label'].grid(row=instancerow, column=3)
-		guiapp.infVarDir[kwargs['instance']]['entry'][0].grid(row=instancerow, column=4)
+		guiapp.infVarDir[kwargs['instance']]['cap'][0].grid(row=instancerow, column=4)
 
 		#print guiapp.infVarDir
 		#print root.grid_slaves()
@@ -66,26 +71,18 @@ def addandremove(**kwargs):
 	global guiapp, root
 	input = kwargs['constraint'].get()
 	guiapp.constraintbatch(kwargs['row']+1,input) #continue adding constraints per user demand
-
 	guiapp.constraintloop[kwargs['id']]['entryadd'][0].grid_remove()
-	
 	guiapp.constraintloop[kwargs['id']]['labeladd'].grid_remove()
-
 	guiapp.constraintloop[kwargs['id']]['buttonno'].grid_remove()
-
 	guiapp.constraintloop[kwargs['id']]['buttonadd'].grid_remove()
 
 def constraintend(**kwargs):
+
 	global guiapp, root
-	
 	guiapp.constraintloop[kwargs['id']]['entryadd'][0].grid_remove()
-	
 	guiapp.constraintloop[kwargs['id']]['labeladd'].grid_remove()
-
 	guiapp.constraintloop[kwargs['id']]['buttonno'].grid_remove()
-
 	guiapp.constraintloop[kwargs['id']]['buttonadd'].grid_remove()
-
 	guiapp.objectivefunction(kwargs['row']+1)
 	
 
@@ -119,23 +116,23 @@ class GUIAPPLICATION(Frame):
 	
 	
 	def decisionvars(self,row=3):
-
+		getvar = StringVar()
 		#Add the label and entry for the decision variable itself
 		Label(self.master, text="Input a Variable").grid(row=row, column=0, sticky=W,padx=5)
-		Entry(self.master, textvariable=StringVar()).grid(row=row, column=1)
+		Entry(self.master, textvariable=getvar).grid(row=row, column=1)
 
 		self.checkbox = Checkbutton(self.master, text="infinite variable?")
-		self.infVarDir[id(self.checkbox)] = {'var': IntVar(), 'self': self.checkbox}
+		self.infVarDir[id(self.checkbox)] = {'var': IntVar(), 'self': self.checkbox, 'entry': getvar}
 		self.checkbox.grid(row=row, column=2)
 		
 		self.infVarDir[id(self.checkbox)]['label'] = Label(self.master, text="cap?")
 		
-		getentry = StringVar()
-		self.infVarDir[id(self.checkbox)]['entry'] = [Entry(self.master, textvariable=getentry), getentry]
+		getentry = IntVar()
+		self.infVarDir[id(self.checkbox)]['cap'] = [Entry(self.master, textvariable=getentry), getentry]
 
 		self.infVarDir[id(self.checkbox)]['label'].grid(row=row, column=3)
-		self.infVarDir[id(self.checkbox)]['entry'][0].grid(row=row, column=4)
-		self.infVarDir[id(self.checkbox)]['self'].config(variable= self.infVarDir[id(self.checkbox)]['var'], command=(lambda instance=id(self.checkbox), state=self.infVarDir[id(self.checkbox)]['var']: additionalVarCap(instance=instance, state=state) ) )
+		self.infVarDir[id(self.checkbox)]['cap'][0].grid(row=row, column=4)
+		self.infVarDir[id(self.checkbox)]['self'].config(variable= self.infVarDir[id(self.checkbox)]['var'], command=(lambda instance=id(self.checkbox), state=self.infVarDir[id(self.checkbox)]['var']: additionalVarCap(instance=instance, state=state, capvar=getentry) ) )
 
 
 		self.infVarDir['decisionvars'] += 2 #remember the row for variables of user additions for later use...
@@ -173,7 +170,7 @@ class GUIAPPLICATION(Frame):
 		#constraint entry
 		getentry = StringVar()
 		self.constraintentry = Entry(self.master, textvariable=getentry)
-		self.constraintloop[id(self.constraintlabel)]['entry'] = self.constraintentry
+		self.constraintloop[id(self.constraintlabel)]['entry'] = getentry
 		self.constraintentry.grid(row=row+2, column=1, padx=5, sticky=E)
 
 		#constraint operator
@@ -224,18 +221,33 @@ class GUIAPPLICATION(Frame):
 		self.label = Label(self.master, text="Objective Goal Algorithm:", font=('Arial', 14))
 		self.objectiveblock[id(self.label)] = self.label
 		self.label.grid(row=row+1, column=0, columnspan=2, sticky=E)
+		
 		getentry = StringVar()
+		v = StringVar()
 		self.entry = Entry(self.master, textvariable=getentry)
-		self.objectiveblock[id(self.entry)] = [self.entry, getentry]
-		self.objectiveblock[id(self.entry)][0].grid(row=row+1, column=2, columnspan=3, sticky=W)
+		self.objectiveblock[id(self.entry)] = {'entry': [self.entry, getentry], 'type': v}
+		self.objectiveblock[id(self.entry)]['entry'][0].grid(row=row+1, column=2, columnspan=3, sticky=W)
+
+		Radiobutton(self.master, text='Max', variable=v, value='max',anchor=N).grid(row=row+1, column=3, sticky=W)
+		Radiobutton(self.master, text='Min', variable=v, value='min',anchor=N).grid(row=row+1, column=4, sticky=W)
+
 
 		self.submitbutton = Button(self.master, text="Submit", fg="#ffffff", bg="#D11C24", command=(lambda row=row+4: self.solve(row)))
-		self.submitbutton.grid(row=row+1, column=4, columnspan=2, sticky=E)
+		self.submitbutton.grid(row=row+1, column=5, columnspan=2, sticky=E+W+S+N)
 
 	def solve(self, row):
 
 		def orsolver():
-			print "begin working on the variables that were input to the fields"
+			varentries = [(self.infVarDir[x]['entry'].get(), self.infVarDir[x]['cap'][1].get()) for x in self.infVarDir if x != 'decisionvars']
+			print varentries
+			varconstraints = [{'label': self.constraintloop[x]['label'].cget('text'), 'boundary': self.constraintloop[x]['constraintbound'][1].get(), 'op': self.constraintloop[x]['operator'][1].get(), 'entry': self.constraintloop[x]['entry'].get()} for x in self.constraintloop if x != 'title']
+			print varconstraints
+			objective = self.objectiveblock.values()[1]
+			print objective
+			
+			createsimplex = simplex_class.ProblemStatement(constraints=varconstraints, objective=objective['entry'][1].get(), type=objective['type'].get(), variables=varentries)
+
+
 
 		self.frame = Frame(self.master)
 		self.button = Button(self.frame, font=('Arial', 14, 'underline'), text="Solve?", fg="#ffffff", bg="#0A2933", command=(lambda x=None: orsolver()))
