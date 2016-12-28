@@ -300,7 +300,7 @@ class Solver(_object):
     def RowConstraint(self, *args):
       return self.Constraint(*args)
 
-    def Minimize(self, expr):
+    def Minimize(self, expr, variables=None):
       objective = self.Objective()
       objective.Clear()
       objective.SetMinimization()
