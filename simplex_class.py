@@ -17,6 +17,8 @@ class ProblemStatement(object):
 		def blankcoefficients(expr):
 			if expr.strip() == '':
 				return 1
+			elif expr.strip() == '-':
+				return -1
 			else:
 				return float(expr)
 				
@@ -74,16 +76,11 @@ class ProblemStatement(object):
 		#Determine if the problem doesn't violate Simplex
 
 		#Max Algorithms Rules #1-4
+		assert model.VerifySolution(1e-7, True), "model is not verifiable" #The percentage of problem equivalent to infeasibility
 
-		try:
+	#The problem has an optimal solution
 
-			assert model.VerifySolution(1e-7, True), "model is not verifiable" #The percentage of problem equivalent to infeasibility
-
-		#The problem has an optimal solution
-
-			assert result_status == pywraplp.Solver.OPTIMAL, "not an optimal solution present"
-		except AssertionError:
-			return "solution Not Optimal"
+		assert result_status == pywraplp.Solver.OPTIMAL, "not an optimal solution present"
 
 		self.label = Label(self.root, text="\n Problem solved in %f ms \n"%(model.wall_time()))
 		self.label.pack(pady=30)
@@ -111,8 +108,8 @@ class ProblemStatement(object):
 		self.label.pack(pady=30)
 
 		for variable in decisions:
-			#self.label = Label(self.root, text="\n \n %s: reduced cost = %f" %(variable.name(), variable.reduced_cost()))
-			#self.label.pack(pady=30)
+			self.label = Label(self.root, text="\n \n %s: reduced cost = %f" %(variable.name(), variable.reduced_cost()))
+			self.label.pack(pady=30)
 			print ("%s: reduced cost = %f" %(variable.name(), variable.reduced_cost()))
 
 		activities = model.ComputeConstraintActivities() #printout of ERO's `b` in AX = b
