@@ -15,9 +15,10 @@ class ProblemStatement(object):
 	
 	def optimization_problem(self, optimization_problem_type, variables, constraints, type, objective):
 		def blankcoefficients(expr):
-			if expr.strip() == '':
+			expr = expr.strip()
+			if expr == '':
 				return 1
-			elif expr.strip() == '-':
+			elif expr == '-':
 				return -1
 			else:
 				return float(expr)
@@ -68,9 +69,12 @@ class ProblemStatement(object):
 		print ("Number of variables = %d"%(model.NumVariables()))
 		print ("Number of constraints = %d"%(model.NumConstraints()))
 
+		self.label = Label(self.root, text="Number of constraints = %d"%(model.NumConstraints()))
+		self.label.pack(pady=20)
+
 		result_status = model.Solve()
 
-		self.result = Label(self.root, text="%s"%(result_status))
+		self.result = Label(self.root, text="solve output = %s"%(result_status))
 		self.result.pack(pady=25)
 
 		#Determine if the problem doesn't violate Simplex
