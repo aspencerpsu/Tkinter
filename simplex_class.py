@@ -70,55 +70,55 @@ class ProblemStatement(object):
 		print ("Number of constraints = %d"%(model.NumConstraints()))
 
 		self.label = Label(self.root, text="Number of constraints = %d"%(model.NumConstraints()))
-		self.label.pack(pady=20)
+		self.label.pack(pady=10)
 
 		result_status = model.Solve()
 
 		self.result = Label(self.root, text="solve output = %s"%(result_status))
-		self.result.pack(pady=25)
+		self.result.pack(pady=10)
 
 		#Determine if the problem doesn't violate Simplex
 
 		#Max Algorithms Rules #1-4
 		assert model.VerifySolution(1e-7, True), "model is not verifiable" #The percentage of problem equivalent to infeasibility
 
-	#The problem has an optimal solution
+		#The problem has an optimal solution
 
 		assert result_status == pywraplp.Solver.OPTIMAL, "not an optimal solution present"
 
 		self.label = Label(self.root, text="\n Problem solved in %f ms \n"%(model.wall_time()))
-		self.label.pack(pady=30)
+		self.label.pack(pady=10)
 
 		print ("\n Problem solved in %f milliseconds \n" %(model.wall_time()))
 
 		#The objective value of the solution `no reduced costs`
 		self.label = Label(self.root, text="\n Optimal objective value = %f" %(model.Objective().Value()))
-		self.label.pack(pady=30)
+		self.label.pack(pady=10)
 		print ("\n Optimal objective value = %f" %(model.Objective().Value()))
 
 		#The value of each variable in the solution
 
 		for variable in decisions:
-			#self.label = Label(self.root, text="%s = %f"%(variable.name(), variable.solution_value()))
-			#self.label.pack(pady=30)
+			self.label = Label(self.root, text="%s = %f"%(variable.name(), variable.solution_value()))
+			self.label.pack(pady=10)
 			print ("%s = %f" %(variable.name(), variable.solution_value()))
 
 		self.label = Label(self.root, text="\n \n Advanced Usage: \n")
-		self.label.pack(pady=30)
+		self.label.pack(pady=10)
 		print ("\n \n Advanced Stats: \n")
-		self.label.pack(pady=30)
+		self.label.pack(pady=10)
 		self.label = Label(self.root, text="\n \n Problem Solved in %d iterations"%model.iterations())
 		print ("\n \n Problem solved in %d iterations" %model.iterations())
-		self.label.pack(pady=30)
+		self.label.pack(pady=10)
 
 		for variable in decisions:
 			self.label = Label(self.root, text="\n \n %s: reduced cost = %f" %(variable.name(), variable.reduced_cost()))
-			self.label.pack(pady=30)
+			self.label.pack(pady=10)
 			print ("%s: reduced cost = %f" %(variable.name(), variable.reduced_cost()))
 
 		activities = model.ComputeConstraintActivities() #printout of ERO's `b` in AX = b
 
 		for i, constraint in enumerate(constraints):
 			self.label = Label(self.root, text="\n\n constraint %d: dual value = %f\n activity=%f" %(i, constraint.dual_value(), activities[constraint.index()]))
-			self.label.pack(pady=30)
+			self.label.pack(pady=10)
 			print ("constraint %d: dual value = %f\n activity=%f" %(i, constraint.dual_value(), activities[constraint.index()]))
