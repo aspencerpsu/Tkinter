@@ -86,8 +86,6 @@ class GUIAPPLICATION(Frame):
 		self.verticalscrollbar = AutoScrollbar(self.master, orient=VERTICAL)
 		self.horizontalscrollbar = AutoScrollbar(self.master, orient=HORIZONTAL)
 		canvas = Canvas(self.master, yscrollcommand=self.verticalscrollbar.set, xscrollcommand=self.horizontalscrollbar.set)
-		self.verticalscrollbar.config(command=canvas.yview)
-		self.horizontalscrollbar.config(command=canvas.xview)
 
 		#### Frame ####
 		self.frame = Frame(canvas)	
@@ -113,7 +111,7 @@ class GUIAPPLICATION(Frame):
 
 		self.frame.update_idletasks()
 
-		canvas.create_window(0, 0, anchor=N, window=self.frame)
+		canvas.create_window(1, 1, anchor=N, window=self.frame)
 		canvas.config(scrollregion=canvas.bbox("all"), height=self.frame.winfo_height())
 		self.master.grid_rowconfigure(0, weight=1)
 		self.master.grid_columnconfigure(0, weight=1)
@@ -251,6 +249,9 @@ class GUIAPPLICATION(Frame):
 		self.submitbutton.grid(row=row+1, column=5, columnspan=2, sticky=E+W+S+N)
 
 	def solve(self, row):
+		
+		self.verticalscrollbar.config(command=Canvas.yview)
+		self.horizontalscrollbar.config(command=Canvas.xview)
 
 		def orsolver():
 			varentries = [(self.infVarDir[x]['entry'].get(), self.infVarDir[x]['cap'][1].get()) for x in self.infVarDir if x != 'decisionvars']
@@ -268,10 +269,10 @@ class GUIAPPLICATION(Frame):
 		self.button = Button(self.frame_2, font=('Arial', 14, 'underline'), text="Solve?", fg="#ffffff", bg="#0A2933", command=(lambda x=None: orsolver()))
 		self.frame_2.config(bd=5)
 		self.frame_2.grid(row=row, column=2, columnspan=5, rowspan=3, sticky=N+W+E+S)
-		self.button.grid(row=row+1, column=2, sticky=N+W+E+S) 
+		self.button.grid(row=0, column=0, sticky=N+W+E+S) 
 
 
-root.geometry("450x600+20+10") #Make sure to add the window length and height of the object
+root.geometry("600x600+20+10") #Make sure to add the window length and height of the object
 
 guiapp = GUIAPPLICATION(root)
 
