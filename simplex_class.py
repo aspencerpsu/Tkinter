@@ -89,8 +89,6 @@ class ProblemStatement(object):
 
 		helpmenu = Menu(menubar, tearoff=0)
 		helpmenu.add_command(label="Help", command=donothing) #come back to this
-
-
 		text.insert(END, "\nNumber of variables = %d\n"%(model.NumVariables()))
 		#self.label.pack(pady=10)
 		print ("Number of variables = %d"%(model.NumVariables()))
