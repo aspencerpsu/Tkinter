@@ -8,7 +8,6 @@ root = Tk()
 
 def resetfunction():
 	import simplex_class
-
 	global guiapp, root
 	"""The resetfunction deletes all the String, Int, and Boolean Vars for 
 	    linear package"""
@@ -53,14 +52,41 @@ def additionalDecisionVar(**kwargs):
 	guiapp.infVarDir[kwargs['id']]['labeladd'].grid_remove()
 	guiapp.infVarDir[kwargs['id']]['buttonno'].grid_remove()
 
-def nodecisionvars(**kwargs):
+	print guiapp.hscrollbar
+	print guiapp.vscrollbar
 
+	del guiapp.hscrollbar 
+	del guiapp.vscrollbar #replace the horizontal scrollbar & vertical scrollbar
+	guiapp.hscrollbar = AutoScrollbar(root, orient=HORIZONTAL)
+	guiapp.vscrollbar = AutoScrollbar(root, orient=VERTICAL) 
+		
+	guiapp.hscrollbar.grid(row=1, column=0, sticky=E+W)
+	guiapp.vscrollbar.grid(row=0, column=1, sticky=N+S)
+
+	guiapp.canvas.create_window(1,1, anchor=NE, window=guiapp.frame)
+	guiapp.frame.update_idletasks()
+	guiapp.canvas.config(scrollregion=guiapp.canvas.bbox("all"))
+	guiapp.canvas.update_idletasks()
+	guiapp.hscrollbar.config(command=guiapp.canvas.xview)
+	guiapp.vscrollbar.config(command=guiapp.canvas.yview)
+
+
+def nodecisionvars(**kwargs):
 	global guiapp, root
 	guiapp.constraintbatch(kwargs['row'] +1, "init")
 	guiapp.infVarDir[kwargs['id']]['buttonadd'].grid_remove()
 	guiapp.infVarDir[kwargs['id']]['buttonno'].grid_remove()
 	guiapp.infVarDir[kwargs['id']]['labeladd'].grid_remove()
 
+	guiapp.canvas.create_window(1, 1, anchor=NE, window=guiapp.frame)
+	guiapp.frame.update_idletasks()
+	guiapp.canvas.config(scrollregion=guiapp.canvas.bbox("all"), xscrollcommand=guiapp.hscrollbar.set, yscrollcommand=guiapp.vscrollbar.set)
+	guiapp.vscrollbar.config(command=guiapp.canvas.yview)
+	guiapp.hscrollbar.config(command=guiapp.canvas.xview)
+	guiapp.canvas.update_idletasks()
+
+	guiapp.vscrollbar.update_idletasks()
+	guiapp.hscrollbar.update_idletasks()
 
 def addandremove(**kwargs):
 	global guiapp, root
@@ -71,6 +97,15 @@ def addandremove(**kwargs):
 	guiapp.constraintloop[kwargs['id']]['buttonno'].grid_remove()
 	guiapp.constraintloop[kwargs['id']]['buttonadd'].grid_remove()
 
+	guiapp.canvas.create_window(1, 1, anchor=N, window=guiapp.frame)
+	guiapp.frame.update_idletasks()
+	guiapp.canvas.config(scrollregion=guiapp.canvas.bbox("all"), xscrollcommand=guiapp.hscrollbar.set, yscrollcommand=guiapp.vscrollbar.set)
+	guiapp.vscrollbar.config(command=guiapp.canvas.yview)
+	guiapp.hscrollbar.config(command=guiapp.canvas.xview)
+
+	guiapp.vscrollbar.update_idletasks()
+	guiapp.hscrollbar.update_idletasks()
+
 def constraintend(**kwargs):
 
 	global guiapp, root
@@ -79,26 +114,36 @@ def constraintend(**kwargs):
 	guiapp.constraintloop[kwargs['id']]['buttonno'].grid_remove()
 	guiapp.constraintloop[kwargs['id']]['buttonadd'].grid_remove()
 	guiapp.objectivefunction(kwargs['row']+1)
+
+	guiapp.canvas.create_window(1, 1, anchor=N, window=guiapp.frame)
+	guiapp.canvas.config(scrollregion=guiapp.canvas.bbox("all"), height=guiapp.frame.winfo_height())
+	guiapp.frame.update_idletasks()
+	guiapp.canvas.update_idletasks()
+
+	guiapp.vscrollbar.update_idletasks()
+	guiapp.hscrollbar.update_idletasks()
+
 	
-
-
 class GUIAPPLICATION(Frame):
 
 	def __init__(self, master):
 		self.master = master # Master Widget
-		self.verticalscrollbar = AutoScrollbar(self.master, orient=VERTICAL)
-		self.horizontalscrollbar = AutoScrollbar(self.master, orient=HORIZONTAL)
-		canvas = Canvas(self.master, yscrollcommand=self.verticalscrollbar.set, xscrollcommand=self.horizontalscrollbar.set)
+		verticalscrollbar = AutoScrollbar(self.master, orient=VERTICAL)
+		horizontalscrollbar = AutoScrollbar(self.master, orient=HORIZONTAL)
+		canvas = Canvas(self.master, yscrollcommand=verticalscrollbar.set, xscrollcommand=horizontalscrollbar.set, width=400, height=3000)
 
 		#### Frame ####
-		self.frame = Frame(canvas)	
+		self.frame = Frame(canvas, height=8000, width=400)
 
 		self.frame.rowconfigure(1, weight=1)
 		self.frame.columnconfigure(1, weight=1)
 		
-		canvas.grid(row=0, column=0, sticky=N+S+E+W)	
-		self.verticalscrollbar.grid(row=0, column=1, sticky=N+S)
-		self.horizontalscrollbar.grid(row=1, column=0, sticky=E+W)
+		canvas.grid(row=0, column=0, sticky=N+S+E+W)
+		verticalscrollbar.grid(row=0, column=1, sticky=N+S)
+		horizontalscrollbar.grid(row=1, column=0, sticky=E+W)
+
+		self.vscrollbar = verticalscrollbar
+		self.hscrollbar = horizontalscrollbar
 		##########################################
 
 
@@ -106,7 +151,7 @@ class GUIAPPLICATION(Frame):
 		self.createLabel("delete all variables?")
 		self.createReset()
 		self.problemdescription = {'label': ''}
-		self.problemLabel()	
+		self.problemLabel()
 		self.infVarDir = {'decisionvars':3} #house the decisions
 		self.decisionvars()
 		self.constraintloop = {} #add all the constraint objects so if one decision var is addded, loop and configure the row and push +1
@@ -114,8 +159,10 @@ class GUIAPPLICATION(Frame):
 
 		self.frame.update_idletasks()
 
-		canvas.create_window(1, 1, anchor=N, window=self.frame)
+		canvas.create_window(1, 1, anchor=NE, window=self.frame)
 		canvas.config(scrollregion=canvas.bbox("all"), height=self.frame.winfo_height())
+		self.canvas = canvas
+		self.master.config(width=800, height=2000)
 		self.master.grid_rowconfigure(0, weight=1)
 		self.master.grid_columnconfigure(0, weight=1)
 	
@@ -143,8 +190,7 @@ class GUIAPPLICATION(Frame):
 		self.infVarDir[id(self.checkbox)] = {'var': IntVar(), 'self': self.checkbox, 'entry': getvar}
 		self.checkbox.grid(row=row, column=2)
 		
-		self.infVarDir[id(self.checkbox)]['label'] = Label(self.frame, text="cap?")
-		
+		self.infVarDir[id(self.checkbox)]['label'] = Label(self.frame, text="cap?")	
 		getentry = IntVar()
 		self.infVarDir[id(self.checkbox)]['cap'] = [Entry(self.frame, textvariable=getentry), getentry]
 
@@ -165,7 +211,6 @@ class GUIAPPLICATION(Frame):
 		self.buttonno = Button(self.frame, text="No", bg="#D11C24", fg="#ffffff", relief="raised", command=(lambda row=self.infVarDir['decisionvars']+1, id=id(self.checkbox): nodecisionvars(row=row, id=id)))
 		self.infVarDir[id(self.checkbox)]['buttonno'] = self.buttonno
 		self.infVarDir[id(self.checkbox)]['buttonno'].grid(row=row+1, column=2, sticky=N+S+E+W, pady=25)
-
 
 
 	def constraintbatch(self,row, constraint=None):
@@ -251,10 +296,9 @@ class GUIAPPLICATION(Frame):
 		self.submitbutton = Button(self.frame, text="Submit", fg="#ffffff", bg="#D11C24", command=(lambda row=row+4: self.solve(row)))
 		self.submitbutton.grid(row=row+1, column=5, columnspan=2, sticky=E+W+S+N)
 
-	def solve(self, row):
-		
-		self.verticalscrollbar.config(command=Canvas.yview)
-		self.horizontalscrollbar.config(command=Canvas.xview)
+	def solve(self, row):	
+		self.verticalscrollbar.config(command=self.canvas.yview)
+		self.horizontalscrollbar.config(command=self.canvas.xview)
 
 		def orsolver():
 			varentries = [(self.infVarDir[x]['entry'].get(), self.infVarDir[x]['cap'][1].get()) for x in self.infVarDir if x != 'decisionvars']
@@ -262,8 +306,7 @@ class GUIAPPLICATION(Frame):
 			varconstraints = [{'label': self.constraintloop[x]['label'].cget('text'), 'boundary': self.constraintloop[x]['constraintbound'][1].get(), 'op': self.constraintloop[x]['operator'][1].get(), 'entry': self.constraintloop[x]['entry'].get()} for x in self.constraintloop if x != 'title']
 			print varconstraints
 			objective = self.objectiveblock.values()[1]
-			print objective
-			
+			print objective	
 			createsimplex = simplex_class.ProblemStatement(constraints=varconstraints, objective=objective['entry'][1].get(), type=objective['type'].get(), variables=varentries)
 
 
@@ -274,9 +317,6 @@ class GUIAPPLICATION(Frame):
 		self.frame_2.grid(row=row, column=2, columnspan=5, rowspan=3, sticky=N+W+E+S)
 		self.button.grid(row=0, column=0, sticky=N+W+E+S) 
 
-
 root.geometry("600x600+20+10") #Make sure to add the window length and height of the object
-
 guiapp = GUIAPPLICATION(root)
-
 root.mainloop()
