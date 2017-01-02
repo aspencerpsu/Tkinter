@@ -7,6 +7,7 @@ import simplex_class
 root = Tk()
 
 def resetfunction():
+	import simplex_class
 
 	global guiapp, root
 	"""The resetfunction deletes all the String, Int, and Boolean Vars for 
@@ -14,6 +15,8 @@ def resetfunction():
 	print "Working..."
 	root.destroy()
 	del guiapp
+	
+	reload(simplex_class)
 	root = Tk()
 	guiapp = GUIAPPLICATION(root)
 	guiapp.mainloop()

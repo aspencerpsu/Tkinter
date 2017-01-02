@@ -9,9 +9,10 @@ import tkFileDialog
 import subprocess
 
 def donothing():
-	print "a"
+	print("Nothing happening")
 
 def file_save():
+	global text
 	f = tkFileDialog.asksaveasfile(mode="w", defaultextension=".txt")
 	if f is None:
 		return
@@ -23,7 +24,7 @@ class ProblemStatement(object):
 
 	def __init__(self, **kwargs):
 		print(" \n \n -------------Linear Programming Example---------------- W/ %s ----------" %"CLP")
-		print ("\n \n *Natural Language API* ")
+		print("\n \n *Natural Language API* ")
 		self.optimization_problem(0, kwargs['variables'], kwargs['constraints'], kwargs['type'], kwargs['objective'])
 	
 	def optimization_problem(self, optimization_problem_type, variables, constraints, type, objective):
@@ -77,12 +78,12 @@ class ProblemStatement(object):
 		self.root = Toplevel()
 		menubar = Menu(self.root)
 		text=Text(self.root)
-		text.pack()
+		
 		filemenu=Menu(menubar, tearoff=0)
 		filemenu.add_command(label="Save As...", command=file_save, accelerator="Ctrl+Shift+S")
 		filemenu.add_command(label="Close", command=donothing, accelerator="Ctrl+w") #come back to this
 		filemenu.add_separator()
-		filemenu.add_command(label="Exit", command=root.quit)
+		filemenu.add_command(label="Exit", command=self.root.quit)
 
 		menubar.add_cascade(label="File", menu=filemenu)
 
@@ -90,19 +91,19 @@ class ProblemStatement(object):
 		helpmenu.add_command(label="Help", command=donothing) #come back to this
 
 
-		self.label = text.insert(END, text="Number of variables = %d"%(model.NumVariables()))
-		self.label.pack(pady=10)
+		text.insert(END, "\nNumber of variables = %d\n"%(model.NumVariables()))
+		#self.label.pack(pady=10)
 		print ("Number of variables = %d"%(model.NumVariables()))
 		print ("Number of constraints = %d"%(model.NumConstraints()))
 
-		self.label = text.insert(END, text="Number of constraints = %d"%(model.NumConstraints()))
+		text.insert(END, "\nNumber of constraints = %d\n"%(model.NumConstraints()))
 		
-		self.label.pack(pady=10)
+		#self.label.pack(pady=10)
 
 		result_status = model.Solve()
 
-		self.result = Label(text, text="solve output = %s"%(result_status))
-		self.result.pack(pady=10)
+		text.insert(END, "\nsolve output = %s"%(result_status))
+		#self.result.pack(pady=10)
 
 		#Determine if the problem doesn't violate Simplex
 
@@ -113,39 +114,42 @@ class ProblemStatement(object):
 
 		assert result_status == pywraplp.Solver.OPTIMAL, "not an optimal solution present"
 
-		self.label = Label(text, text="\n Problem solved in %f ms \n"%(model.wall_time()))
-		self.label.pack(pady=10)
+		text.insert(END, "\nProblem solved in %f ms \n"%(model.wall_time()))
+		#self.label.pack(pady=10)
 
-		print ("\n Problem solved in %f milliseconds \n" %(model.wall_time()))
+		print ("\nProblem solved in %f milliseconds \n" %(model.wall_time()))
 
 		#The objective value of the solution `no reduced costs`
-		self.label = Label(text, text="\n Optimal objective value = %f" %(model.Objective().Value()))
-		self.label.pack(pady=10)
-		print ("\n Optimal objective value = %f" %(model.Objective().Value()))
+		text.insert(END, "\nOptimal objective value = %f \n" %(model.Objective().Value()))
+		#self.label.pack(pady=10)
+		print ("\nOptimal objective value = %f\n" %(model.Objective().Value()))
 
 		#The value of each variable in the solution
 
 		for variable in decisions:
-			self.label = Label(text, text="%s = %f"%(variable.name(), variable.solution_value()))
-			self.label.pack(pady=10)
+			text.insert(END, "\n%s = %f\n"%(variable.name(), variable.solution_value()))
+			#self.label.pack(pady=10)
 			print ("%s = %f" %(variable.name(), variable.solution_value()))
 
-		self.label = Label(text, text="\n \n Advanced Usage: \n")
-		self.label.pack(pady=10)
-		print ("\n \n Advanced Stats: \n")
-		self.label.pack(pady=10)
-		self.label = Label(text, text="\n \n Problem Solved in %d iterations"%model.iterations())
+		text.insert(END, "\n \nAdvanced Usage: \n")
+		#self.label.pack(pady=10)
+		print ("\n \nAdvanced Stats: \n")
+		#self.label.pack(pady=10)
+		text.insert(END, "\n \nProblem Solved in %d iterations"%model.iterations())
 		print ("\n \n Problem solved in %d iterations" %model.iterations())
-		self.label.pack(pady=10)
+		#self.label.pack(pady=10)
 
 		for variable in decisions:
-			self.label = Label(text, text="\n \n %s: reduced cost = %f" %(variable.name(), variable.reduced_cost()))
-			self.label.pack(pady=10)
+			text.insert(END, "\n \n%s: reduced cost = %f" %(variable.name(), variable.reduced_cost()))
+			#self.label.pack(pady=10)
 			print ("%s: reduced cost = %f" %(variable.name(), variable.reduced_cost()))
 
 		activities = model.ComputeConstraintActivities() #printout of ERO's `b` in AX = b
 
 		for i, constraint in enumerate(constraints):
-			self.label = Label(text, text="\n\n constraint %d: dual value = %f\n activity=%f" %(i, constraint.dual_value(), activities[constraint.index()]))
-			self.label.pack(pady=10)
-			print ("constraint %d: dual value = %f\n activity=%f" %(i, constraint.dual_value(), activities[constraint.index()]))
+			self.label = text.insert(END, "\n\n constraint %d: dual value = %f\n activity=%f" %(i, constraint.dual_value(), activities[constraint.index()]))
+			#self.label.pack(pady=10)
+			print ("constraint %d: dual value = %f\nactivity=%f" %(i, constraint.dual_value(), activities[constraint.index()]))
+		text.config(state=DISABLED)
+		text.pack()
+		self.root.config(menu=menubar)
