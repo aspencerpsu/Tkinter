@@ -14,12 +14,12 @@ def file_save(text):
 
     f = tkFileDialog.asksaveasfile(mode="w", defaultextension=".txt")
     if f is None:
-    	    f = open("report.txt", "w+")
+    	f = open("report.txt", "w+")
 	    text2save = str(text.get(1.0, END))
 	    f.write(text2save)
 	    f.close()
-            return
-    if str(text.get(1.0, END)):
+        return
+    elif str(text.get(1.0, END)):
     	text2save = str(text.get(1.0, END))
     	f.write(text2save)
     	f.close()
@@ -35,7 +35,7 @@ class ProblemStatement(object):
 						kwargs['type'], kwargs['objective'])
 	
 	def optimization_problem(self, optimization_problem_type, variables,
-					constraints, type, objective):
+                                constraints, type, objective):
 
 		def blankcoefficients(expr):
 
@@ -53,9 +53,9 @@ class ProblemStatement(object):
 		cons = {}
 		for num in variables:
 			if not num[1]:
-				vars["%s"%(num[0])] = solver.NumVar(0.0, infinity, "%s"%(num[0]))
+				vars[str(num[0])] = solver.NumVar(0.0, infinity, str(num[0]))
 			else:
-				vars["%s"%(num[0])] = solver.NumVar(0.0, int(num[1]), "%s"%(num[0]))
+				vars[str(num[0])] = solver.NumVar(0.0, int(num[1]), str(num[0]))
 
 		if type == 'max':
 			groupings = re.split('\+', objective)
@@ -81,15 +81,15 @@ class ProblemStatement(object):
 				x)[0], groupings))
 			variables = vars.values()
 			if op == '<=':
-				cons["%s"%(label)] = solver.Add(sum([coefficients[x]*variables[x] for x in range(0,len(coefficients)-1)]) <= int(boundary), label)
+				cons[str(label)] = solver.Add(sum([coefficients[x]*variables[x] for x in range(0,len(coefficients)-1)]) <= int(boundary), label)
 			elif op == '>=':
-				cons["%s"%(label)] = solver.Add(sum([coefficients[x]*variables[x] for x in range(0,len(coefficients)-1)]) >= int(boundary), label)
+				cons[str(label)] = solver.Add(sum([coefficients[x]*variables[x] for x in range(0,len(coefficients)-1)]) >= int(boundary), label)
 			elif op == '<':
-				cons["%s"%(label)] = solver.Add(sum([coefficients[x]*variables[x] for x in range(0,len(coefficients)-1)]) < int(boundary), label) 
+				cons[str(label)] = solver.Add(sum([coefficients[x]*variables[x] for x in range(0,len(coefficients)-1)]) < int(boundary), label) 
 			elif  op== '>':
-				cons["%s"%(label)] = solver.Add(sum([coefficients[x]*variables[x] for x in range(0,len(coefficients)-1)]) > int(boundary), label) 
+				cons[str(label)] = solver.Add(sum([coefficients[x]*variables[x] for x in range(0,len(coefficients)-1)]) > int(boundary), label) 
 			elif op == '=':
-				cons["%s"%(label)] = solver.Add(sum([coefficients[x]*variables[x] for x in range(0,len(coefficients)-1)]) == int(boundary), label)
+				cons[str(label)] = solver.Add(sum([coefficients[x]*variables[x] for x in range(0,len(coefficients)-1)]) == int(boundary), label)
 			else: raise SyntaxError("""Operator must be of type '=', \'>\', \'<', \'<=\', or \'>=\' symbols""")
 
 		print (vars.values(), cons.values())
