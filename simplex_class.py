@@ -15,9 +15,9 @@ def file_save(text):
     f = tkFileDialog.asksaveasfile(mode="w", defaultextension=".txt")
     if f is None:
     	f = open("report.txt", "w+")
-	    text2save = str(text.get(1.0, END))
-	    f.write(text2save)
-	    f.close()
+	text2save = str(text.get(1.0, END))
+	f.write(text2save)
+	f.close()
         return
     elif str(text.get(1.0, END)):
     	text2save = str(text.get(1.0, END))
@@ -59,12 +59,12 @@ class ProblemStatement(object):
 
 		if type == 'max':
 			groupings = re.split('\+', objective)
-			coefficients = map(blankcoefficients, map(lambda x: re.split('\-?[a-z|A-Z][0-9]*',
+			coefficients = map(blankcoefficients, map(lambda x: re.split('[a-zA-Z_]+[0-9]+',
 				x)[0], groupings))
 			solver.Maximize(coefficients, vars.values())
 		else:
 			groupings = re.split('\+', objective)
-			coefficients = map(blankcoefficients, map(lambda x: re.split('\-?[A-Z|a-z][0-9]*',
+			coefficients = map(blankcoefficients, map(lambda x: re.split('[A-Za-z_]+[0-9]+',
 				x)[0], groupings))
 			solver.Minimize(coefficients, vars.values())
 
@@ -77,7 +77,7 @@ class ProblemStatement(object):
 
 			op = constraint['op'].strip() #remove whitespacing
 
-			coefficients = map(blankcoefficients, map(lambda x: re.split('\-?[a-z|A-Z][0-9]*',
+			coefficients = map(blankcoefficients, map(lambda x: re.split('[a-zA-Z_]+[0-9]+',
 				x)[0], groupings))
 			variables = vars.values()
 			if op == '<=':
