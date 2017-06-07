@@ -1,6 +1,7 @@
 import sys
 from Tkinter import *
-#from Tkinter import filedialog
+import tkFileDialog
+import tkMessageBox
 
 
 def mHello():
@@ -14,10 +15,10 @@ def myOpen():
     mlabel4 = Label(myApp,text=myOpen).pack()
 
 def mAbout():
-    messagebox.showinfo(title="About",message="This is the about box")
+    tkMessageBox.showinfo(title="About",message="This is the about box")
 
 def mQuit():
-    mExit = messagebox.askyesno(title="Quit", message="Are you sure")
+    mExit = tkMessageBox.askyesno(title="Quit", message="Are you sure")
     if mExit > 0:
         myApp.destroy()
         
