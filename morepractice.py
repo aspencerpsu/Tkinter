@@ -8,7 +8,7 @@ def document():
 	global openboxes, win
 	if openboxes["on"] != []:
 		dialog = openboxes["on"][0] 
-		dialog.destroy()
+		#dialog.destroy()
 		openboxes["on"].pop() #remove the widget window
 		del dialog
 	else:
@@ -42,7 +42,7 @@ listbox.document = document  #Bind the function to listbox constructor
 
 window_docs = {}
 
-for wid in range(0, types-1):
+for wid in range(0, types):
 	constructor = dir(win)[wid] #constructor method 
 	listbox.insert(wid, constructor)
 
