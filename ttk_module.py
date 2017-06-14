@@ -15,7 +15,8 @@ def demo():
 
     # Second page
     page2 = ttk.Frame(nb)
-    text = "Welcome to my life"
+    text = Text(page2)
+    text.insert(END, "love ultra")
     text.pack(expand=1, fill="both")
 
     nb.add(page1, text='One')
